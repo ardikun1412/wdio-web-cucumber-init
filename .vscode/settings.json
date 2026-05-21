@@ -1,0 +1,13 @@
+{
+  "cucumber.features": [
+    "test/features/**/*.feature"
+  ],
+  "cucumber.glue": [
+    "test/step-definitions/**/*.steps.js"
+  ],
+
+  "[cucumber]": {
+    "editor.defaultFormatter": "CucumberOpen.cucumber-official",
+    "editor.formatOnSave": true
+  }
+}

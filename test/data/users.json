@@ -1,0 +1,11 @@
+{
+  "validUser": {
+    "usernameKey": "standardUser",
+    "passwordKey": "password"
+  },
+  "lockedOutUser": {
+    "usernameKey": "lockedOutUser",
+    "passwordKey": "password",
+    "expectedError": "Epic sadface: Sorry, this user has been locked out."
+  }
+}
