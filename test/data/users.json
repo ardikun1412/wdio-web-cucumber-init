@@ -1,11 +1,24 @@
 {
-  "validUser": {
-    "usernameKey": "standardUser",
-    "passwordKey": "password"
+  "dev": {
+    "validUser": {
+      "username": "standard_user",
+      "password": "secret_sauce"
+    },
+    "lockedOutUser": {
+      "username": "locked_out_user",
+      "password": "secret_sauce",
+      "expectedError": "Epic sadface: Sorry, this user has been locked out."
+    }
   },
-  "lockedOutUser": {
-    "usernameKey": "lockedOutUser",
-    "passwordKey": "password",
-    "expectedError": "Epic sadface: Sorry, this user has been locked out."
+  "staging": {
+    "validUser": {
+      "username": "standard_user",
+      "password": "secret_sauce"
+    },
+    "lockedOutUser": {
+      "username": "locked_out_user",
+      "password": "secret_sauce",
+      "expectedError": "Epic sadface: Sorry, this user has been locked out."
+    }
   }
 }

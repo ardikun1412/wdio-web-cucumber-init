@@ -1,26 +1,21 @@
-import users from '../test/data/users.json' with { type: 'json' };
-import products from '../test/data/products.json' with { type: 'json' };
-import checkout from '../test/data/checkout.json' with { type: 'json' };
-import { credentials } from '../config/env.config.js';
+import fs from 'fs';
+import path from 'path';
+import { testEnv } from '../config/env.config.js';
 
-export const getUser = (alias) => {
-  const user = users[alias];
-  if (!user) throw new Error(`User data alias not found: ${alias}`);
-  return {
-    username: credentials[user.usernameKey],
-    password: credentials[user.passwordKey],
-    expectedError: user.expectedError
-  };
-};
+export function getUsers() {
+    const usersDataPath = path.resolve('./test/data/users.json');
+    const usersData = JSON.parse(fs.readFileSync(usersDataPath, 'utf8'));
+    return usersData[testEnv]; 
+}
 
-export const getProduct = (alias) => {
-  const product = products[alias];
-  if (!product) throw new Error(`Product data alias not found: ${alias}`);
-  return product;
-};
+export function getProducts() {
+    const productsDataPath = path.resolve('./test/data/products.json');
+    const productsData = JSON.parse(fs.readFileSync(productsDataPath, 'utf8'));
+    return productsData[testEnv];
+}
 
-export const getCheckoutData = (alias) => {
-  const customer = checkout[alias];
-  if (!customer) throw new Error(`Checkout data alias not found: ${alias}`);
-  return customer;
-};
+export function getCheckoutData() {
+    const checkoutDataPath = path.resolve('./test/data/checkout.json');
+    const checkoutData = JSON.parse(fs.readFileSync(checkoutDataPath, 'utf8'));
+    return checkoutData[testEnv];
+}

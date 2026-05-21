@@ -8,12 +8,12 @@
     "test": "npm run clean && wdio run ./wdio.conf.js",
     "test:dev": "TEST_ENV=dev npm run test",
     "test:staging": "TEST_ENV=staging npm run test",
-    "test:prod": "TEST_ENV=prod npm run test",
     "test:e2e": "TAGS='@e2e' npm run test:dev",
     "allure:generate": "rm -rf allure-report && npx allure generate allure-results -o allure-report",
     "allure:open": "npx allure open allure-report",
     "allure:serve": "allure serve allure-results",
-    "result:enrich": "node scripts/enrich-result.js"
+    "result:enrich": "node scripts/enrich-result.js",
+    "upload:xray": "npm run result:enrich && node helper/subTestExecution.helper.js"
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
