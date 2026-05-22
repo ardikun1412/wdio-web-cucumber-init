@@ -7,7 +7,7 @@ Feature: SauceDemo End to End Checkout
     Given user is on the login page
     And user logs in with username "standard_user" and password "secret_sauce"
     Then user should be redirected to the inventory page
-
+@smoke @L3
   Scenario: User successfully checkout one product
     When user adds product "Sauce Labs Backpack" to the cart
     And user opens the cart page
@@ -20,6 +20,7 @@ Feature: SauceDemo End to End Checkout
     When user finishes the checkout
     Then user should see order confirmation message "Thank you for your order!"
 
+  @smoke @L3
   Scenario: User successfully checkout two products
     When user adds product "Sauce Labs Backpack" to the cart
     And user adds product "Sauce Labs Bike Light" to the cart

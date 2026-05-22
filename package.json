@@ -1,7 +1,7 @@
 {
   "name": "wdio-saucedemo-automation-framework",
   "version": "1.0.0",
-  "description": "WebdriverIO Cucumber automation framework for SauceDemo with data-driven testing, Allure report, multi environment, Docker, GitHub Actions, and Babel.",
+  "description": "WebdriverIO Cucumber automation framework for SauceDemo with data-driven testing, Allure report, multi environment, GitHub Actions, Babel, and Selenium Grid.",
   "type": "module",
   "scripts": {
     "clean": "rm -rf allure-results allure-report",
@@ -13,7 +13,9 @@
     "allure:open": "npx allure open allure-report",
     "allure:serve": "allure serve allure-results",
     "result:enrich": "node scripts/enrich-result.js",
-    "upload:xray": "npm run result:enrich && node helper/subTestExecution.helper.js"
+    "upload:xray": "npm run result:enrich && node helper/subTestExecution.helper.js",
+    "grid:start": "docker compose up -d",
+    "grid:stop": "docker compose down"
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
