@@ -1,4 +1,7 @@
 node_modules/
 allure-results/
 allure-report/
+custom-results/
+screenshots/
 .DS_Store
+.env

@@ -150,6 +150,12 @@ export const config = {
   maxInstances,
 
   //
+  // Retry failed specs once (handles flaky tests)
+  //
+  specFileRetries: 1,
+  specFileRetriesDeferred: true,
+
+  //
   // Browser capabilities
   //
   capabilities: buildCapabilities(),

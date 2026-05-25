@@ -1,25 +1,14 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from '@wdio/globals';
 
-import LoginPage from '../pages/login.page.js';
 import InventoryPage from '../pages/inventory.page.js';
 import CartPage from '../pages/cart.page.js';
 import CheckoutPage from '../pages/checkout.page.js';
 
-Given('user is on the login page', async () => {
-  await LoginPage.open();
-});
-
-Given(
-  'user logs in with username {string} and password {string}',
-  async (username, password) => {
-    await LoginPage.login(username, password);
-  }
-);
-
-Then('user should be redirected to the inventory page', async () => {
-  await InventoryPage.expectInventoryPageDisplayed();
-});
+//
+// Background steps are now handled by shared login steps
+// (user opens SauceDemo login page, user logs in using ... credential data)
+//
 
 When('user adds product {string} to the cart', async (productName) => {
   await InventoryPage.addProductToCart(productName);

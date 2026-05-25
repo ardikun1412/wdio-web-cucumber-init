@@ -28,6 +28,7 @@ jobs:
         run: npm run test:dev
         env:
           HEADLESS: true
+          USE_GRID: false
           TEST_ENV: dev
 
       - name: Generate Allure 3 report

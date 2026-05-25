@@ -4,10 +4,11 @@ Feature: SauceDemo End to End Checkout
   So that I can complete checkout successfully
 
   Background: User is logged in
-    Given user is on the login page
-    And user logs in with username "standard_user" and password "secret_sauce"
-    Then user should be redirected to the inventory page
-@smoke @L3
+    Given user opens SauceDemo login page
+    And user logs in using "validUser" credential data
+    Then user should see inventory page
+
+  @smoke @L3
   Scenario: User successfully checkout one product
     When user adds product "Sauce Labs Backpack" to the cart
     And user opens the cart page

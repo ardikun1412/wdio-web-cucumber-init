@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { IdGenerator } from '@cucumber/messages';
 import {
   Parser,
@@ -6,18 +7,43 @@ import {
   GherkinClassicTokenMatcher
 } from '@cucumber/gherkin';
 
+//
+// Cache parsed feature files to avoid re-parsing per scenario
+//
+const parseCache = new Map();
+
 function parseFeatureFile(featureFilePath) {
-  if (!featureFilePath || !fs.existsSync(featureFilePath)) {
+  // If it's a file:// URI, parse it correctly or strip it
+  let resolvedPath = featureFilePath;
+  if (resolvedPath && resolvedPath.startsWith('file://')) {
+    resolvedPath = resolvedPath.replace('file://', '');
+  }
+
+  // Handle absolute path resolution
+  if (resolvedPath && !path.isAbsolute(resolvedPath)) {
+    resolvedPath = path.resolve(process.cwd(), resolvedPath);
+  }
+
+  if (!resolvedPath || !fs.existsSync(resolvedPath)) {
+    console.warn(`[Gherkin Cache] File not found or empty path: "${featureFilePath}" (Resolved: "${resolvedPath}")`);
     return null;
   }
 
-  const content = fs.readFileSync(featureFilePath, 'utf-8');
+  if (parseCache.has(resolvedPath)) {
+    return parseCache.get(resolvedPath);
+  }
+
+  const content = fs.readFileSync(resolvedPath, 'utf-8');
 
   const builder = new AstBuilder(IdGenerator.uuid());
   const matcher = new GherkinClassicTokenMatcher();
   const parser = new Parser(builder, matcher);
 
-  return parser.parse(content);
+  const result = parser.parse(content);
+
+  parseCache.set(featureFilePath, result);
+
+  return result;
 }
 
 export function getFeatureMetadata(featureFilePath) {
@@ -26,6 +52,7 @@ export function getFeatureMetadata(featureFilePath) {
   if (!document?.feature) {
     return {
       name: null,
+      description: null,
       language: null,
       uri: featureFilePath || null
     };
@@ -33,6 +60,7 @@ export function getFeatureMetadata(featureFilePath) {
 
   return {
     name: document.feature.name || null,
+    description: document.feature.description ? document.feature.description.trim() : null,
     language: document.feature.language || null,
     uri: featureFilePath || null
   };

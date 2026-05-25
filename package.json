@@ -13,14 +13,14 @@
     "allure:open": "npx allure open allure-report",
     "allure:serve": "allure serve allure-results",
     "result:enrich": "node scripts/enrich-result.js",
-    "upload:xray": "npm run result:enrich && node helper/subTestExecution.helper.js",
+    "upload:xray": "npm run result:enrich && node helper/jira/index.js",
     "grid:start": "docker compose up -d",
     "grid:stop": "docker compose down"
   },
+  "dependencies": {
+    "axios": "^1.9.0"
+  },
   "devDependencies": {
-    "@babel/core": "7.29.0",
-    "@babel/preset-env": "7.29.5",
-    "@babel/register": "7.28.3",
     "@cucumber/gherkin": "^39.1.0",
     "@cucumber/messages": "^32.3.1",
     "@wdio/allure-reporter": "9.27.1",

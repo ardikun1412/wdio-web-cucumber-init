@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { sanitizeFileName } from '../utils/sanitize.js';
 
 /* ================= PATH ================= */
 
@@ -53,13 +54,7 @@ function getLatestResultFiles(resultFiles) {
 
 /* ================= UTIL ================= */
 
-function sanitizeFileName(name, fallback = 'attachment') {
-  return String(name || fallback)
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 150);
-}
+// sanitizeFileName imported from utils/sanitize.js
 
 function normalizeStepName(name) {
   return String(name || '')

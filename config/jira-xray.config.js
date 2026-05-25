@@ -10,7 +10,7 @@ const jiraXrayConfig = {
     preconditionDetails: 'customfield_10232',
     preconditionType: 'customfield_10231',
 
-    testRepositoryPath: 'customfield_10221',
+    // testRepositoryPath: 'customfield_10221',
     testType: 'customfield_10210',
     testingType: 'customfield_16010',
 
