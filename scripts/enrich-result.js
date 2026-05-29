@@ -244,6 +244,11 @@ export function enrichAllureResults() {
     throw new Error(`Allure results folder not found: ${allureDir}`);
   }
 
+  if (!fs.existsSync(metadataDir)) {
+    console.warn(`[WARNING] .metadata folder not found in ${allureDir}. Enrichment process aborted (it may have been run already).`);
+    return [];
+  }
+
   cleanOutputDir();
 
   const files = fs.readdirSync(allureDir);
