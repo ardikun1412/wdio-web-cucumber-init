@@ -11,8 +11,15 @@ import {
 } from './utils/gherkin-metadata.js';
 
 import { saveExecutionMetadata } from './utils/execution-metadata.js';
+import PrometheusReporter from './utils/prometheus-reporter.js';
+import { logScenarioStart, logScenarioEnd, logStepResult, logSuiteSummary, flushLogs } from './utils/loki-transport.js';
 
 dotenv.config();
+
+//
+// Unified Run ID for all workers
+//
+process.env.WDIO_RUN_ID = process.env.WDIO_RUN_ID || `run-${Date.now()}`;
 
 //
 // Environment
@@ -24,6 +31,7 @@ const testEnv = process.env.TEST_ENV || 'dev';
 // chrome | firefox
 //
 const browserName = process.env.BROWSER || 'chrome';
+const grafanaEnabled = process.env.GRAFANA_ENABLED === 'true';
 
 //
 // Selenium Grid toggle
@@ -123,11 +131,11 @@ const buildServices = () => {
   // Local native browser mode
   //
   if (browserName === 'chrome') {
-    return ['chromedriver'];
+    return [];
   }
 
   if (browserName === 'firefox') {
-    return ['geckodriver'];
+    return [];
   }
 
   return [];
@@ -152,7 +160,7 @@ export const config = {
   //
   // Retry failed specs once (handles flaky tests)
   //
-  specFileRetries: 1,
+  specFileRetries: 0,
   specFileRetriesDeferred: true,
 
   //
@@ -270,7 +278,30 @@ export const config = {
           Node_Version: process.version
         }
       }
-    ]
+    ],
+
+    //
+    // Prometheus reporter (Grafana stack)
+    //
+    ...(grafanaEnabled
+      ? [
+        [
+          PrometheusReporter,
+          {
+            pushgatewayUrl:
+              process.env.PUSHGATEWAY_URL ||
+              'http://localhost:9091',
+
+            projectName:
+              process.env.PROJECT_NAME || 'web',
+
+            environment: testEnv,
+
+            browser: browserName
+          }
+        ]
+      ]
+      : [])
   ],
 
   //
@@ -389,13 +420,50 @@ export const config = {
     for (const tag of tags) {
       allureReporter.addTag(tag);
     }
+
+    //
+    // Loki logging
+    //
+    if (grafanaEnabled) {
+      logScenarioStart(
+        scenarioName,
+        feature?.name,
+        tags
+      );
+    }
   },
 
   //
   // Screenshot after every step
   //
-  afterStep: async function () {
+  afterStep: async function (step, scenario, result) {
     await browser.takeScreenshot();
+
+    //
+    // Loki step logging
+    //
+    if (grafanaEnabled) {
+      const stepName =
+        step?.text || 'Unknown Step';
+
+      const scenarioName =
+        scenario?.pickle?.name ||
+        'Unknown Scenario';
+
+      const status = result?.passed
+        ? 'passed'
+        : 'failed';
+
+      const duration =
+        result?.duration || 0;
+
+      logStepResult(
+        stepName,
+        scenarioName,
+        status,
+        duration
+      );
+    }
   },
 
   //
@@ -476,6 +544,18 @@ export const config = {
     };
 
     //
+    // Loki logging
+    //
+    if (grafanaEnabled) {
+      logScenarioEnd(
+        rawScenarioName,
+        feature?.name,
+        result?.passed ? 'passed' : 'failed',
+        result?.duration || 0
+      );
+    }
+
+    //
     // Save metadata
     //
     saveExecutionMetadata(scenarioData);
@@ -485,6 +565,15 @@ export const config = {
     //
     if (!result?.passed) {
       await browser.takeScreenshot();
+    }
+  },
+
+  //
+  // Flush Loki logs on complete
+  //
+  onComplete: async function () {
+    if (grafanaEnabled) {
+      await flushLogs();
     }
   }
 };

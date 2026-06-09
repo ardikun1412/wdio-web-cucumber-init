@@ -15,7 +15,10 @@
     "result:enrich": "node scripts/enrich-result.js",
     "upload:xray": "npm run result:enrich && node helper/jira/index.js",
     "grid:start": "docker compose up -d",
-    "grid:stop": "docker compose down"
+    "grid:stop": "docker compose down",
+    "grafana:start": "docker compose up -d prometheus pushgateway loki grafana",
+    "grafana:stop": "docker compose stop prometheus pushgateway loki grafana",
+    "grafana:open": "open http://localhost:3000"
   },
   "dependencies": {
     "axios": "^1.9.0"
@@ -30,6 +33,9 @@
     "@wdio/spec-reporter": "9.27.1",
     "allure": "3.8.0",
     "dotenv": "17.2.3",
-    "webdriverio": "9.27.1"
+    "prom-client": "^15.1.0",
+    "webdriverio": "9.27.1",
+    "winston": "^3.17.0",
+    "winston-loki": "^6.1.3"
   }
 }
