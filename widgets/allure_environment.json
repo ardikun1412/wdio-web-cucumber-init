@@ -1,1 +1,1 @@
-[]
+[{"name":"Environment","values":["dev"]},{"name":"Base_URL","values":["https://www.saucedemo.com/"]},{"name":"Browser","values":["chrome"]},{"name":"Headless","values":["true"]},{"name":"Use_Grid","values":["false"]},{"name":"Selenium_Host","values":["localhost"]},{"name":"Selenium_Port","values":["4444"]},{"name":"Node_Version","values":["v22.22.3"]}]
