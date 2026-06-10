@@ -371,7 +371,7 @@ export default class PrometheusReporter extends WDIOReporter {
       );
 
       await gateway.pushAdd({
-        jobName: 'wdio-test',
+        jobName: this.projectName,
         groupings: {
           worker: this.workerId
         }
