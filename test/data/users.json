@@ -7,7 +7,7 @@
     "lockedOutUser": {
       "username": "locked_out_user",
       "password": "secret_sauce",
-      "expectedError": "Epic sadface: Sorry, this user has been locked out.."
+      "expectedError": "Epic sadface: Sorry, this user has been locked out."
     }
   },
   "staging": {

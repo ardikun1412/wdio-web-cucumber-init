@@ -1001,7 +1001,7 @@
       {
         "name": "project_name",
         "type": "constant",
-        "query": "web",
+        "query": "saucedemo",
         "hide": 2
       }
     ]
@@ -1012,8 +1012,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "WDIO Test Execution Dashboard",
-  "uid": "wdio-automation",
+  "title": "WDIO Test Execution Dashboard - saucedemo",
+  "uid": "wdio-automation-saucedemo",
   "version": 2,
   "weekStart": ""
 }
