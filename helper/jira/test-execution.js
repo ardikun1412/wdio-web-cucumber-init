@@ -127,23 +127,40 @@ async function initTestExecution() {
   return TEST_EXEC_KEY;
 }
 
+/**
+ * Deprecated behavior:
+ * Do not use GET /rest/raven/1.0/api/testexec/{testExecKey}/test
+ * for large Test Executions because it can exceed Jira/Xray maximum result limit.
+ *
+ * This function is kept for backward compatibility only.
+ * Prefer refreshTestInExecution().
+ */
 async function isTestInExecution(testExecKey, testKey) {
-  try {
-    const res = await axios.get(
-      `${JIRA_BASEURL}/rest/raven/1.0/api/testexec/${testExecKey}/test`,
-      { auth }
-    );
+  console.warn(
+    `⚠ isTestInExecution(${testExecKey}, ${testKey}) is skipped to avoid Xray max result limit. ` +
+    `Use refreshTestInExecution() instead.`
+  );
 
-    return res.data.some(test => test.key === testKey);
+  return false;
+}
 
-  } catch (err) {
-    console.error(
-      `Failed to check whether ${testKey} exists in ${testExecKey}:`,
-      err.response?.data || err.message
-    );
+function isTestRunNotFoundError(error) {
+  const status = error.response?.status;
+  const data = error.response?.data;
 
-    return false;
-  }
+  const message =
+    typeof data === 'string'
+      ? data
+      : data?.message || error.message || '';
+
+  return (
+    status === 404 ||
+    message.includes("Can't find test run") ||
+    message.includes('Cannot find test run') ||
+    message.includes('could not find test run') ||
+    (message.toLowerCase().includes('test run') &&
+      message.toLowerCase().includes('not found'))
+  );
 }
 
 async function deleteTestCaseFromExecution(testExecKey, testCaseKey) {
@@ -156,6 +173,13 @@ async function deleteTestCaseFromExecution(testExecKey, testCaseKey) {
     console.log(`  ➖ Removed Test Case ${testCaseKey} from Test Execution ${testExecKey}`);
 
   } catch (error) {
+    if (isTestRunNotFoundError(error)) {
+      console.log(
+        `  ℹ Test Case ${testCaseKey} is not currently in Test Execution ${testExecKey}, skip remove`
+      );
+      return;
+    }
+
     console.error(
       `Error removing Test Case ${testCaseKey} from Test Execution ${testExecKey}:`,
       error.response?.data || error.message
@@ -181,9 +205,22 @@ async function addTestToExecution(testExecKey, testKey) {
   }
 }
 
+/**
+ * Safe refresh for one Test Case only.
+ * This does NOT clear the whole Test Execution.
+ *
+ * It removes only the current Test Case if it exists,
+ * then adds it back to regenerate/refresh the Test Run.
+ */
+async function refreshTestInExecution(testExecKey, testKey) {
+  await deleteTestCaseFromExecution(testExecKey, testKey);
+  await addTestToExecution(testExecKey, testKey);
+}
+
 export {
   initTestExecution,
   isTestInExecution,
   deleteTestCaseFromExecution,
-  addTestToExecution
+  addTestToExecution,
+  refreshTestInExecution
 };

@@ -16,9 +16,7 @@ import { getOrCreateTestSet, addTestToTestSet } from './test-set.js';
 import { uploadExecutionEvidence, updateTestRunStatus } from './evidence.js';
 import {
   initTestExecution,
-  isTestInExecution,
-  deleteTestCaseFromExecution,
-  addTestToExecution
+  refreshTestInExecution
 } from './test-execution.js';
 
 async function uploadtojira() {
@@ -42,15 +40,16 @@ async function uploadtojira() {
 
   for (let i = 0; i < tests.length; i++) {
     const tc = tests[i];
+
     try {
       console.log('\n================================================================');
       console.log(`🚀 Processing Scenario [${i + 1}/${tests.length}]`);
-      console.log(`================================================================`);
+      console.log('================================================================');
       console.log(`🎬 Scenario   : ${tc.name}`);
       console.log(`📄 Feature    : ${tc.featureName}`);
       console.log(`🕒 Timestamp  : ${tc.timestamp || '-'}`);
       console.log(`📁 Source     : ${tc.enrichedFile}`);
-      console.log(`----------------------------------------------------------------`);
+      console.log('----------------------------------------------------------------');
 
       const testSetKey = await getOrCreateTestSet(tc);
       const testKey = await getOrCreateTestCase(tc);
@@ -70,13 +69,14 @@ async function uploadtojira() {
         await addTestToTestSet(testSetKey, testKey);
       }
 
-      const alreadyInExecution = await isTestInExecution(testExecKey, testKey);
-
-      if (alreadyInExecution) {
-        await deleteTestCaseFromExecution(testExecKey, testKey);
-      }
-
-      await addTestToExecution(testExecKey, testKey);
+      /**
+       * Safe refresh:
+       * - Does not call GET /testexec/{key}/test
+       * - Does not clear the whole Test Execution
+       * - Removes only the current Test Case if it exists
+       * - Adds the current Test Case back to the Test Execution
+       */
+      await refreshTestInExecution(testExecKey, testKey);
 
       const status = tc.status;
 
