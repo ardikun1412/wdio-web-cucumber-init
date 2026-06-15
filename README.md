@@ -16,7 +16,8 @@ Framework automation test berbasis **WebdriverIO v9**, **Cucumber/Gherkin**, **A
 | **Node.js** | ≥ 20 (disarankan v22) |
 | **Axios** | v1.9.0 (Jira Xray HTTP client) |
 | **dotenv** | v17.2.3 |
-| **Docker** | Selenium Grid 4 (Hub + Chromium Node) |
+| **Grafana Stack** | Grafana, Prometheus, Loki, Pushgateway |
+| **Docker** | Selenium Grid 4 & Grafana Stack |
 | **GitHub Actions** | CI/CD otomatis |
 | **Target Application** | [https://www.saucedemo.com](https://www.saucedemo.com) |
 
@@ -137,6 +138,36 @@ docker compose up --build --abort-on-container-exit
 ```
 
 Saat `USE_GRID=true`, framework otomatis terhubung ke `SELENIUM_HOST:SELENIUM_PORT` (default: `localhost:4444`).
+
+---
+
+## 📈 Observability & Telemetry
+
+Framework ini dilengkapi dengan integrasi **Grafana**, **Prometheus**, dan **Loki** untuk memonitor hasil test (metrics) dan log secara *real-time*.
+
+### Service Docker
+
+| Service | Port | Kegunaan |
+|---|---|---|
+| **Prometheus** | `9090` | Time-series database untuk scrape metrics dari Pushgateway |
+| **Pushgateway** | `9091` | Menerima push metrics (test results) dari framework test |
+| **Loki** | `3100` | Menerima dan menyimpan logs dari test execution |
+| **Grafana** | `3000` | Visualisasi dashboard metrik dan logs |
+
+### Menjalankan Stack Grafana
+
+```bash
+# Start Grafana stack (background)
+npm run grafana:start
+
+# Buka dashboard Grafana di browser (User/Pass default: admin/admin)
+npm run grafana:open
+
+# Stop Grafana stack
+npm run grafana:stop
+```
+
+> Saat test dijalankan dan `GRAFANA_ENABLED=true`, framework otomatis akan mem-push log (ke Loki) dan test metrics (ke Pushgateway).
 
 ---
 
@@ -287,6 +318,12 @@ Setiap scenario di-enrich dengan label Allure berikut:
 │   ├── env.config.js               # Konfigurasi multi-environment (base URL, timeout)
 │   └── jira-xray.config.js         # Konfigurasi Jira Xray (issue types, custom fields)
 │
+├── grafana/
+│   ├── dashboards/                 # File JSON dashboard Grafana
+│   ├── provisioning/               # Konfigurasi data sources & dashboards Grafana otomatis
+│   ├── loki-config.yml             # Konfigurasi Loki
+│   └── prometheus.yml              # Konfigurasi Prometheus
+│
 ├── helper/
 │   └── jira/
 │       ├── index.js                # Orchestrator upload ke Jira Xray
@@ -321,7 +358,9 @@ Setiap scenario di-enrich dengan label Allure berikut:
 │   ├── gherkin-metadata.js         # Parser feature file (feature, background, tags, steps)
 │   ├── execution-metadata.js       # Simpan metadata eksekusi per scenario ke file JSON
 │   ├── test-data.js                # Loader data JSON berdasarkan TEST_ENV
-│   └── sanitize.js                 # Sanitasi nama file (untuk metadata filename)
+│   ├── sanitize.js                 # Sanitasi nama file (untuk metadata filename)
+│   ├── prometheus-reporter.js      # Custom WDIO reporter untuk push metrics ke Pushgateway
+│   └── loki-transport.js           # Logger Winston custom untuk kirim log/events ke Loki
 │
 ├── .env                            # File environment lokal (tidak di-commit)
 ├── .env.example                    # Template environment variables
@@ -410,6 +449,15 @@ cp .env.example .env
 | `TEST_EXECUTION_KEY` | Key Test Execution yang sudah ada (kosongkan untuk auto-create) |
 | `SUMMARY_EXECUTION` | Judul Test Execution yang akan dibuat |
 
+### Grafana Observability
+
+| Variable | Default | Keterangan |
+|---|---|---|
+| `GRAFANA_ENABLED` | `true` | Aktifkan/nonaktifkan pengiriman metric & log ke Grafana stack |
+| `PUSHGATEWAY_URL` | `http://localhost:9091` | URL endpoint Prometheus Pushgateway |
+| `LOKI_URL` | `http://localhost:3100` | URL endpoint Grafana Loki |
+| `PROJECT_NAME` | `saucedemo` | Identitas project (label) untuk metrik di Grafana |
+
 ---
 
 ## 📜 NPM Scripts Reference
@@ -428,3 +476,6 @@ cp .env.example .env
 | `upload:xray` | `npm run result:enrich && node helper/jira/index.js` | Upload hasil ke Jira Xray |
 | `grid:start` | `docker compose up -d` | Start Selenium Grid (background) |
 | `grid:stop` | `docker compose down` | Stop Selenium Grid |
+| `grafana:start` | `docker compose up -d prometheus pushgateway loki grafana` | Start Grafana, Prometheus, Loki stack |
+| `grafana:stop` | `docker compose stop prometheus pushgateway loki grafana` | Stop Grafana stack |
+| `grafana:open` | `open http://localhost:3000` | Buka Dashboard Grafana di browser |

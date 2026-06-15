@@ -135,7 +135,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"passed\",})",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"passed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "legendFormat": "Passed",
           "refId": "A"
         },
@@ -144,7 +144,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"failed\",})",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"failed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "legendFormat": "Failed",
           "refId": "B"
         }
@@ -210,7 +210,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "count(count by (run_id) (wdio_scenario_total{project=\"$project_name\"}))",
+          "expr": "count(count by (run_id) ((wdio_scenario_total{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))))",
           "legendFormat": "Total Runs",
           "refId": "A"
         }
@@ -279,7 +279,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"passed\",}) / sum(wdio_scenario_total{project=\"$project_name\"}) * 100",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"passed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) / sum((wdio_scenario_total{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) * 100",
           "legendFormat": "Success Rate",
           "refId": "A"
         }
@@ -348,7 +348,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"failed\",}) / sum(wdio_scenario_total{project=\"$project_name\"}) * 100",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"failed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) / sum((wdio_scenario_total{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) * 100",
           "legendFormat": "Failure Rate",
           "refId": "A"
         }
@@ -419,7 +419,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "avg(max by (run_id) (wdio_suite_duration_seconds{project=\"$project_name\"}))",
+          "expr": "avg(max by (run_id) ((wdio_suite_duration_seconds{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))))",
           "legendFormat": "Time",
           "refId": "A"
         }
@@ -546,7 +546,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (run_id) (wdio_scenario_total{project=\"$project_name\", status=\"passed\"})",
+          "expr": "sum by (run_id) ((wdio_scenario_total{project=~\"$project\", status=\"passed\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -556,7 +556,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (run_id) (wdio_scenario_total{project=\"$project_name\", status=\"failed\"})",
+          "expr": "sum by (run_id) ((wdio_scenario_total{project=~\"$project\", status=\"failed\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "format": "table",
           "instant": true,
           "refId": "B"
@@ -566,7 +566,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "max by (run_id) (wdio_suite_duration_seconds{project=\"$project_name\"})",
+          "expr": "max by (run_id) ((wdio_suite_duration_seconds{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "format": "table",
           "instant": true,
           "refId": "C"
@@ -576,7 +576,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "max by (run_id) (wdio_run_timestamp_seconds{project=\"$project_name\"}) * 1000",
+          "expr": "max by (run_id) ((wdio_run_timestamp_seconds{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) * 1000",
           "format": "table",
           "instant": true,
           "refId": "D"
@@ -711,7 +711,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "wdio_scenario_status{project=\"$project_name\"}",
+          "expr": "(wdio_scenario_status{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -860,7 +860,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"passed\",}) / sum(wdio_scenario_total{project=\"$project_name\"}) * 100",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"passed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) / sum((wdio_scenario_total{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) * 100",
           "legendFormat": "Success Rate",
           "refId": "A"
         },
@@ -869,7 +869,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(wdio_scenario_total{project=\"$project_name\", status=\"failed\",}) / sum(wdio_scenario_total{project=\"$project_name\"}) * 100",
+          "expr": "sum((wdio_scenario_total{project=~\"$project\", status=\"failed\",} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) / sum((wdio_scenario_total{project=~\"$project\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000))) * 100",
           "legendFormat": "Failure Rate",
           "refId": "B"
         }
@@ -969,7 +969,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (scenario) (wdio_scenario_total{project=\"$project_name\", status=\"failed\"})",
+          "expr": "sum by (scenario) ((wdio_scenario_total{project=~\"$project\", status=\"failed\"} and on(run_id) (wdio_run_timestamp_seconds >= $__from/1000 and wdio_run_timestamp_seconds <= $__to/1000)))",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -999,15 +999,26 @@
   "templating": {
     "list": [
       {
-        "name": "project_name",
-        "type": "constant",
-        "query": "saucedemo",
-        "hide": 2
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "includeAll": true,
+        "name": "project",
+        "query": "label_values(wdio_scenario_total, project)",
+        "type": "query",
+        "refresh": 1,
+        "sort": 1
       }
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},

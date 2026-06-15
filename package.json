@@ -16,6 +16,7 @@
     "upload:xray": "npm run result:enrich && node helper/jira/index.js",
     "grid:start": "docker compose up -d",
     "grid:stop": "docker compose down",
+    "grid:open": "open http://localhost:4444",
     "grafana:start": "docker compose up -d prometheus pushgateway loki grafana",
     "grafana:stop": "docker compose stop prometheus pushgateway loki grafana",
     "grafana:open": "open http://localhost:3000"
