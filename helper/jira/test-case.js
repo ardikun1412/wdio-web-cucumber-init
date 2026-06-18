@@ -15,7 +15,8 @@ import {
   customFields,
   defaultValues,
   addFieldIfValid,
-  findIssueBySummary
+  findIssueBySummary,
+  getIssue
 } from './client.js';
 
 async function clearStep(tc) {
@@ -137,14 +138,70 @@ async function updateTestCase(testCase, tc) {
   return testCase;
 }
 
+async function transitionTestCase(testKey) {
+  try {
+    const issue = await getIssue(testKey);
+    const statusId = String(issue.fields.status.id);
+    const statusName = issue.fields.status.name;
+    console.log(`🔄 Test Case ${testKey} status is ${statusId} (${statusName})`);
+
+    if (statusId === '10000') {
+      console.log(`🔄 Transitioning Test Case ${testKey} from ${statusName} to In Progress (111)...`);
+      await axios.post(
+        `${JIRA_BASEURL}/rest/api/2/issue/${testKey}/transitions`,
+        { transition: { id: '111' } },
+        { auth }
+      );
+
+      console.log(`🔄 Transitioning Test Case ${testKey} to In Review (151)...`);
+      await axios.post(
+        `${JIRA_BASEURL}/rest/api/2/issue/${testKey}/transitions`,
+        { transition: { id: '151' } },
+        { auth }
+      );
+    } else if (statusId === '10100') {
+      console.log(`🔄 Transitioning Test Case ${testKey} from ${statusName} to In Progress (101)...`);
+      await axios.post(
+        `${JIRA_BASEURL}/rest/api/2/issue/${testKey}/transitions`,
+        { transition: { id: '101' } },
+        { auth }
+      );
+
+      console.log(`🔄 Transitioning Test Case ${testKey} to In Review (151)...`);
+      await axios.post(
+        `${JIRA_BASEURL}/rest/api/2/issue/${testKey}/transitions`,
+        { transition: { id: '151' } },
+        { auth }
+      );
+    } else if (statusId === '3') {
+      console.log(`🔄 Transitioning Test Case ${testKey} from ${statusName} to In Review (151)...`);
+      await axios.post(
+        `${JIRA_BASEURL}/rest/api/2/issue/${testKey}/transitions`,
+        { transition: { id: '151' } },
+        { auth }
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Failed to transition Test Case ${testKey}:`,
+      error.response?.data || error.message
+    );
+  }
+}
+
 async function getOrCreateTestCase(tc) {
+  let testKey;
   const existing = await findTestCaseBySummary(tc.name);
 
   if (existing) {
-    return await updateTestCase(existing, tc);
+    testKey = await updateTestCase(existing, tc);
+  } else {
+    testKey = await createTestCase(tc);
   }
 
-  return await createTestCase(tc);
+  await transitionTestCase(testKey);
+
+  return testKey;
 }
 
 export { getOrCreateTestCase };
