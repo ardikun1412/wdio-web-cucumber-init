@@ -3,6 +3,7 @@ const jiraXrayConfig = {
     precondition: 'Pre-Condition',
     test: 'Test',
     testSet: 'Test Set',
+    testExecution: 'Test Execution',
     subTestExecution: 'Sub Test Execution'
   },
 

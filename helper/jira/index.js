@@ -8,7 +8,7 @@
  */
 
 import { fileURLToPath } from 'url';
-import { validateRequiredEnv, login } from './client.js';
+import { validateRequiredEnv, login, isBlank, PARENT_ISSUE_KEY } from './client.js';
 import { extractAllureData } from './allure-reader.js';
 import { getOrCreatePrecondition, linkPreconditionToTest } from './precondition.js';
 import { getOrCreateTestCase } from './test-case.js';
@@ -18,6 +18,7 @@ import {
   initTestExecution,
   refreshTestInExecution
 } from './test-execution.js';
+import { initSubTestExecution } from './sub-test-execution.js';
 
 async function uploadtojira() {
   console.log('\n================================================================');
@@ -28,7 +29,14 @@ async function uploadtojira() {
 
   await login();
 
-  const testExecKey = await initTestExecution();
+  let testExecKey;
+  if (isBlank(PARENT_ISSUE_KEY)) {
+    console.log('🔹 PARENT_ISSUE_KEY is empty. Generating Test Execution...');
+    testExecKey = await initTestExecution();
+  } else {
+    console.log(`🔹 PARENT_ISSUE_KEY found (${PARENT_ISSUE_KEY}). Generating Sub Test Execution...`);
+    testExecKey = await initSubTestExecution();
+  }
   const tests = await extractAllureData();
 
   if (!tests.length) {

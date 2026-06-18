@@ -9,7 +9,7 @@
     "test:dev": "TEST_ENV=dev npm run test",
     "test:staging": "TEST_ENV=staging npm run test",
     "test:e2e": "TAGS='@e2e' npm run test:dev",
-    "allure:generate": "mkdir -p allure-results && rm -rf allure-report && npx allure generate allure-results -o allure-report",
+    "allure:generate": "npx allure generate allure-results -o allure-report",
     "allure:open": "npx allure open allure-report",
     "allure:serve": "allure serve allure-results",
     "result:enrich": "node scripts/enrich-result.js",
@@ -22,7 +22,10 @@
     "grafana:open": "open http://localhost:3000"
   },
   "dependencies": {
-    "axios": "^1.9.0"
+    "axios": "^1.9.0",
+    "cross-env": "^10.1.0",
+    "rimraf": "^6.1.3",
+    "open-cli": "^9.0.0"
   },
   "devDependencies": {
     "@cucumber/gherkin": "^39.1.0",

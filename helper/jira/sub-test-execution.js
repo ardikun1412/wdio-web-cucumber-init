@@ -1,7 +1,7 @@
 /**
  * Xray Test Execution Management
  *
- * Handles Test Execution lifecycle: create, validate,
+ * Handles Sub Test Execution lifecycle: create, validate,
  * add/remove test cases, and manage test run status.
  */
 
@@ -11,6 +11,7 @@ import {
   JIRA_BASEURL,
   JIRA_USERNAME,
   PROJECT_KEY,
+  PARENT_ISSUE_KEY,
   TEST_EXECUTION_KEY,
   SUMMARY_EXECUTION,
   issueTypes,
@@ -22,14 +23,14 @@ import {
 
 let TEST_EXEC_KEY = null;
 
-async function isTestExecution(issueKey) {
+async function isSubTestExecution(issueKey) {
   if (!isJiraIssueKey(issueKey)) {
     return false;
   }
 
   try {
     const issue = await getIssue(issueKey);
-    return issue.fields.issuetype.name === issueTypes.testExecution;
+    return issue.fields.issuetype.name === issueTypes.subTestExecution;
 
   } catch (error) {
     console.error(
@@ -41,10 +42,16 @@ async function isTestExecution(issueKey) {
   }
 }
 
-async function createTestExecution() {
+async function createSubTestExecution() {
   if (!isJiraProjectKey(PROJECT_KEY)) {
     throw new Error(
       `PROJECT_KEY must be a project key, for example "POFT". Current value: ${PROJECT_KEY}`
+    );
+  }
+
+  if (!isJiraIssueKey(PARENT_ISSUE_KEY)) {
+    throw new Error(
+      `PARENT_ISSUE_KEY is required to create Sub Test Execution, for example "POFT-123". Current value: ${PARENT_ISSUE_KEY}`
     );
   }
 
@@ -52,8 +59,11 @@ async function createTestExecution() {
     fields: {
       project: { key: PROJECT_KEY },
       summary: SUMMARY_EXECUTION,
-      issuetype: { name: issueTypes.testExecution },
-      assignee: { name: JIRA_USERNAME }
+      issuetype: { name: issueTypes.subTestExecution },
+      assignee: { name: JIRA_USERNAME },
+      parent: {
+        key: PARENT_ISSUE_KEY
+      }
     }
   };
 
@@ -85,7 +95,7 @@ async function updateTestExecutionAssignee(testExecKey, assignee) {
   }
 }
 
-async function initTestExecution() {
+async function initSubTestExecution() {
   if (!isBlank(TEST_EXECUTION_KEY)) {
     if (!isJiraIssueKey(TEST_EXECUTION_KEY)) {
       throw new Error(
@@ -93,10 +103,10 @@ async function initTestExecution() {
       );
     }
 
-    const isValidTestExecution = await isTestExecution(TEST_EXECUTION_KEY);
+    const isValidTestExecution = await isSubTestExecution(TEST_EXECUTION_KEY);
 
     if (!isValidTestExecution) {
-      throw new Error(`${TEST_EXECUTION_KEY} is not a Test Execution issue`);
+      throw new Error(`${TEST_EXECUTION_KEY} is not a Sub Test Execution issue`);
     }
 
     console.log(`🔹 Using existing Test Execution: ${TEST_EXECUTION_KEY}`);
@@ -110,7 +120,7 @@ async function initTestExecution() {
 
   console.log(`🔹 Creating new Test Execution in project ${PROJECT_KEY}`);
 
-  TEST_EXEC_KEY = await createTestExecution();
+  TEST_EXEC_KEY = await createSubTestExecution();
 
   console.log(`✨ Created Test Execution: ${TEST_EXEC_KEY}`);
 
@@ -208,7 +218,7 @@ async function refreshTestInExecution(testExecKey, testKey) {
 }
 
 export {
-  initTestExecution,
+  initSubTestExecution,
   isTestInExecution,
   deleteTestCaseFromExecution,
   addTestToExecution,
